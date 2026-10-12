@@ -4,6 +4,7 @@ const TABS: { id: Tab; label: string; hint: string }[] = [
   { id: "picker", label: "Picker", hint: "the one-tap flow" },
   { id: "ops", label: "Ops Deck", hint: "the numbers" },
   { id: "story", label: "Story", hint: "problem → proof" },
+  { id: "qa", label: "Q&A", hint: "reviewer questions" },
 ]
 
 export function Header() {

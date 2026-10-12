@@ -35,6 +35,9 @@ problem Swap-Smart solves.
 3. **Story** — problem → solution → proof table → **honesty section**: every assumption,
    its value, and its anchor. Plus a **Golden Demo**: a 60-second narrated tour over the real
    simulation.
+4. **Q&A** — the questions reviewers actually ask, answered from two seats: a store-operations
+   manager's and an engineer's. Every number quoted there is computed by the engine and locked
+   by tests.
 
 ## The numbers (seed 2026, 1,000 orders — reproducible)
 
@@ -94,7 +97,7 @@ in stock · allergen-safe · diet-safe  →  semantic 38 · price 20 · diet 14 
 ## Stack
 
 Vite · React 18 · TypeScript strict · Tailwind (design tokens, dual theme) · framer-motion ·
-hand-written SVG charts · Vitest (18 engine tests) · Playwright (5 e2e) ·
+hand-written SVG charts · Vitest (18 engine tests) · Playwright (6 e2e) ·
 optional Vercel serverless function for the AI writer.
 
 ## Run it

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
 import { runSimulation, type Simulation } from "../engine"
 
-export type Tab = "picker" | "ops" | "story"
+export type Tab = "picker" | "ops" | "story" | "qa"
 
 interface AppState {
   theme: "light" | "dark"

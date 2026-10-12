@@ -31,6 +31,7 @@ dijaga hard rules mutlak, dikonfirmasi manusia, disertai pesan customer jujur mu
 | D6 | Dual theme light/dark dari hari pertama, tokens dengan channel RGB | Konsisten sekaligus memperbaiki jebakan `/opacity` Tailwind |
 | D7 | UI mobile-first untuk picker (phone frame di desktop) + ops deck desktop | Dua persona, dua panggung demo |
 | D8 | Pesan customer EN/DE/ID | DH = 70+ negara; personalisasi bahasa = fitur nyata |
+| D9 | Halaman Q&A reviewer (tab ke-4); UI produk netral platform — tanpa nama perusahaan di frontend | Plan B: project harus bisa di-apply ke platform q-commerce/dark-store mana pun; target utama tetap tercatat di AGENTS/charter, bukan di UI produk |
 
 ## 5. Asumsi model (terkunci; mengubah = ubah baris ini)
 

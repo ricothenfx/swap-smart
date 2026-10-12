@@ -89,6 +89,20 @@ test("story tab renders the proof table", async ({ page }) => {
   await expect(page.getByRole("table").first()).toBeVisible()
 })
 
+test("qa tab renders both sections and links back", async ({ page }) => {
+  await page.goto("/")
+  await page.getByRole("navigation").getByRole("button", { name: "Q&A" }).click()
+  await expect(page.getByRole("heading", { name: "For non-technical reviewers" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "For technical reviewers" })).toBeVisible()
+
+  const item = page.getByTestId("qa-item").first()
+  await item.locator("summary").click()
+  await expect(item.locator("div")).toBeVisible()
+
+  await page.getByRole("button", { name: "back to the app" }).click()
+  await expect(page.getByRole("heading", { name: /5-second shelf decision/i })).toBeVisible()
+})
+
 test("theme toggle flips the document theme", async ({ page }) => {
   await page.goto("/")
   const before = await page.locator("html").getAttribute("data-theme")
