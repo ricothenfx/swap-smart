@@ -147,7 +147,7 @@ export function PickerView() {
   }
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_auto]">
+    <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_auto]">
       <aside className="order-2 max-w-xl lg:order-1">
         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-accent">Picker App</p>
         <h1 className="mt-2 text-4xl font-extrabold tracking-tight">

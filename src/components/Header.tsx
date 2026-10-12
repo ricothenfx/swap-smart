@@ -11,7 +11,7 @@ export function Header() {
   const { tab, setTab, theme, toggleTheme, setDemoOpen } = useApp()
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-[var(--header-bg)] backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-4 py-3 sm:px-6 md:flex-nowrap md:gap-3">
         <button
           onClick={() => setTab("picker")}
           className="flex items-center gap-2.5"
@@ -28,7 +28,7 @@ export function Header() {
           </span>
         </button>
 
-        <nav className="ml-auto flex items-center gap-1 rounded-xl border border-line bg-background p-1">
+        <nav className="order-last flex w-full items-center justify-center gap-1 rounded-xl border border-line bg-background p-1 md:order-none md:ml-auto md:w-auto md:justify-start">
           {TABS.map((t) => (
             <button
               key={t.id}
@@ -48,7 +48,7 @@ export function Header() {
 
         <button
           onClick={() => setDemoOpen(true)}
-          className="btn-primary hidden !py-2 md:inline-flex"
+          className="btn-primary ml-auto !px-3.5 !py-2 text-[13px] md:ml-0 md:text-sm"
         >
           ▶ Golden Demo
         </button>
