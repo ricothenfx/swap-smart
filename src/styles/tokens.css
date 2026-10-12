@@ -1,0 +1,70 @@
+/*
+ * SWAP-SMART design tokens.
+ * Single source of truth for all colors & shadows.
+ * Rule: components never hardcode colors — everything flows through these vars.
+ */
+
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f4f6f4;
+  --surface: #ffffff;
+  --surface-2: #eef1ee;
+
+  --ink: #16211b;
+  --muted: #5c6b62;
+  --line: #dbe2dc;
+
+  --accent: #0b8a5c;
+  --accent-ink: #ffffff;
+  --accent-soft: #e2f4eb;
+
+  --good: #0b8a5c;
+  --good-soft: #e2f4eb;
+  --warn: #b25e09;
+  --warn-soft: #fdf0e0;
+  --bad: #c92a3d;
+  --bad-soft: #fbe7ea;
+
+  --shadow-card: 0 1px 2px rgb(22 33 27 / 0.06), 0 4px 16px rgb(22 33 27 / 0.06);
+  --shadow-pop: 0 2px 6px rgb(22 33 27 / 0.1), 0 12px 32px rgb(22 33 27 / 0.14);
+
+  --hero-glow: radial-gradient(
+    1200px 500px at 70% -10%,
+    rgb(11 138 92 / 0.12),
+    transparent 60%
+  );
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #0c110f;
+  --surface: #131a17;
+  --surface-2: #1b2420;
+
+  --ink: #e9efeb;
+  --muted: #93a29a;
+  --line: #26302b;
+
+  --accent: #34d399;
+  --accent-ink: #06281b;
+  --accent-soft: #123327;
+
+  --good: #34d399;
+  --good-soft: #123327;
+  --warn: #f5b45e;
+  --warn-soft: #382a15;
+  --bad: #f27487;
+  --bad-soft: #3a1a20;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 6px 20px rgb(0 0 0 / 0.35);
+  --shadow-pop: 0 2px 8px rgb(0 0 0 / 0.5), 0 16px 40px rgb(0 0 0 / 0.45);
+
+  --hero-glow: radial-gradient(
+    1200px 500px at 70% -10%,
+    rgb(52 211 153 / 0.1),
+    transparent 60%
+  );
+}
