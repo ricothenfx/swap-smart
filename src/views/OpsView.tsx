@@ -99,23 +99,28 @@ export function OpsView() {
 
 function ImpactStrip({ sim }: { sim: Simulation }) {
   const impact = useMemo(() => impactSummary(sim), [sim])
-  const per1k = (v: number) => v / Math.max(1, sim.config.orders / 1000)
+  // per-1,000-orders deltas come straight from the raw KPIs (impactSummary is
+  // already projected to a 30-day month at 350 orders/day — never mix the two)
+  const scale1k = 1000 / Math.max(1, sim.config.orders)
+  const retainedPer1k = (sim.smart.kpis.retainedEur - sim.autoRefund.kpis.retainedEur) * scale1k
+  const ordersSavedPer1k = (sim.autoRefund.kpis.cancelledOrders - sim.smart.kpis.cancelledOrders) * scale1k
+  const complaintsPer1k = sim.autoRefund.kpis.complaintsPer1k - sim.smart.kpis.complaintsPer1k
   const items = [
     {
       label: "Basket retained",
-      value: euro(per1k(impact.retainedDeltaEurPerMonth)),
+      value: euro(retainedPer1k),
       unit: "per 1,000 orders",
       hint: "revenue that stays in baskets instead of refund emails",
     },
     {
       label: "Orders saved",
-      value: Math.round(per1k(impact.ordersSavedPerMonth)).toString(),
+      value: Math.round(ordersSavedPer1k).toString(),
       unit: "per 1,000 orders",
       hint: "hero item missing no longer kills the whole basket",
     },
     {
       label: "Complaints avoided",
-      value: Math.round(per1k(impact.complaintsAvoidedPerMonth)).toString(),
+      value: Math.round(complaintsPer1k).toString(),
       unit: "per 1,000 orders",
       hint: "fewer “why did you refund my milk?” tickets",
     },

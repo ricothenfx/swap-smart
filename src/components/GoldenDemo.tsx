@@ -104,7 +104,7 @@ export function GoldenDemo() {
         body: "Projected at 350 orders/day for one store, including €2.50 saved per avoided refund.",
         render: () => (
           <div className="grid grid-cols-2 gap-2">
-            <Mini label="basket retained" v={"€" + Math.round(impact.retainedDeltaEurPerMonth / (sim.config.orders / 1000)).toLocaleString()} sub="per 1,000 orders" accent />
+            <Mini label="basket retained" v={"€" + Math.round(((sim.smart.kpis.retainedEur - sim.autoRefund.kpis.retainedEur) / sim.config.orders) * 1000).toLocaleString()} sub="per 1,000 orders" accent />
             <Mini label="net / month / store" v={"€" + Math.round(impact.netImpactEurPerMonth).toLocaleString()} sub="350 orders/day" accent />
             <Mini label="orders saved" v={Math.round(impact.ordersSavedPerMonth).toLocaleString()} sub="per month" />
             <Mini label="picker hours" v={Math.round(impact.pickerHoursSavedPerMonth) + " h"} sub="per month" />

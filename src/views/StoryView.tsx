@@ -80,7 +80,7 @@ export function StoryView() {
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
-        <MiniStat big={euro(impact.retainedDeltaEurPerMonth / (sim.config.orders / 1000))} label="extra basket value per 1,000 orders" tone="good" />
+        <MiniStat big={euro(((smart.retainedEur - base.retainedEur) / sim.config.orders) * 1000)} label="extra basket value per 1,000 orders" tone="good" />
         <MiniStat big={euro(impact.netImpactEurPerMonth)} label="net per month at 350 orders/day, incl. €2.50 saved per avoided refund" tone="good" />
         <MiniStat big={"-" + Math.round((1 - smart.complaintsPer1k / base.complaintsPer1k) * 100) + "%"} label="complaint events vs status quo" tone="good" />
       </div>
