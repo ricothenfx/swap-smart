@@ -203,6 +203,10 @@ export interface SimConfig {
 
 export interface Simulation {
   config: SimConfig
+  /** the shared shelf state — same for every policy */
+  shelf: ShelfState
+  /** the shared generated orders, in run sequence */
+  orders: Order[]
   /** today's default on many platforms: item is refunded automatically */
   autoRefund: PolicyResult
   /** dumb bot: most popular item in the category, blind to the customer */

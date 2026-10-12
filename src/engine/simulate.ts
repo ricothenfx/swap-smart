@@ -78,6 +78,8 @@ export function runSimulation(config: SimConfig): Simulation {
 
   return {
     config: { ...config, oosRate },
+    shelf,
+    orders,
     autoRefund: runPolicy(orders, shelf, "auto-refund", config.seed),
     naive: runPolicy(orders, shelf, "naive-sub", config.seed),
     smart: runPolicy(orders, shelf, "swap-smart", config.seed),
