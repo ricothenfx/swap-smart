@@ -456,7 +456,7 @@ function PickList({
       </div>
 
       {current && (
-        <div className="mt-3 rounded-2xl border border-line bg-surface p-3 shadow-card">
+        <div className="sticky bottom-0 z-10 mt-3 rounded-t-2xl border border-b-0 border-line bg-surface p-3 shadow-pop">
           <div className="flex items-center justify-between gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-muted">
               At slot {current.product.zone} · you see
