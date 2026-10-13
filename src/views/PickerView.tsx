@@ -9,6 +9,7 @@ import {
   type Order,
   type OrderLine,
   type Product,
+  type ShelfState,
   type SubstituteCandidate,
 } from "../engine"
 import { writeMessage, type WrittenMessage } from "../ai/writer"
@@ -25,6 +26,8 @@ interface OosMoment {
   target: Product
   candidates: SubstituteCandidate[]
   blocked: BlockedCandidate[]
+  /** system said in stock, but the picker cannot find it — phantom stock */
+  phantom: boolean
   chosen?: SubstituteCandidate
 }
 
@@ -43,7 +46,7 @@ export function PickerView() {
   const [thinking, setThinking] = useState(false)
   const [message, setMessage] = useState<WrittenMessage | null>(null)
   const [locale, setLocale] = useState<Locale>("en")
-  const [stats, setStats] = useState({ subs: 0, retainedEur: 0, refunds: 0 })
+  const [stats, setStats] = useState({ subs: 0, retainedEur: 0, refunds: 0, phantoms: 0 })
   const [swaps, setSwaps] = useState<Record<string, SubstituteCandidate>>({})
   const [shiftDone, setShiftDone] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -82,20 +85,24 @@ export function PickerView() {
     if (!anyPending) setPhase("summary")
   }
 
-  function tapLine(idx: number) {
+  function pickLine(idx: number) {
+    if (phase !== "picking" || oos) return
+    if ((statuses[idx] ?? "pending") !== "pending") return
+    if (!lines[idx]) return
+    const next = { ...statuses, [idx]: "picked" as const }
+    setStatuses(next)
+    advance(next)
+  }
+
+  function reportMissing(idx: number) {
     if (phase !== "picking" || oos) return
     if ((statuses[idx] ?? "pending") !== "pending") return
     const entry = lines[idx]
-    if (!entry) return
-    const oosLine = sim.shelf.outOfStock.has(entry.product.id)
-    if (!oosLine) {
-      const next = { ...statuses, [idx]: "picked" as const }
-      setStatuses(next)
-      advance(next)
-      return
-    }
-    const { candidates, blocked } = rankSubstitutes(entry.product, order!, sim.shelf)
-    setOos({ line: entry.line, target: entry.product, candidates, blocked })
+    if (!entry || !order) return
+    const phantom = !sim.shelf.outOfStock.has(entry.product.id)
+    const { candidates, blocked } = rankSubstitutes(entry.product, order, sim.shelf)
+    setOos({ line: entry.line, target: entry.product, candidates, blocked, phantom })
+    if (phantom) setStats((s) => ({ ...s, phantoms: s.phantoms + 1 }))
     setThinking(true)
     setMessage(null)
     if (timer.current) clearTimeout(timer.current)
@@ -182,25 +189,27 @@ export function PickerView() {
           ))}
         </ul>
 
-        <div className="mt-8 grid grid-cols-3 gap-3">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Stat label="Orders picked" value={String(orderIdx + (phase === "summary" ? 1 : 0)) + " / " + orders.length} />
           <Stat label="Smart swaps" value={String(stats.subs)} />
           <Stat label="Basket kept" value={"€" + stats.retainedEur.toFixed(2)} />
+          <Stat label="Phantom flags" value={String(stats.phantoms)} />
         </div>
 
         <div className="mt-8 rounded-2xl border border-line bg-surface p-4 text-xs leading-relaxed text-muted shadow-card">
           <strong className="text-ink">Everything is live.</strong> The shelf state, the baskets and
           the ranking all come from the same seeded simulation as the Ops Deck (seed{" "}
-          <code className="font-mono text-accent">{useSeedLabel()}</code>). Tap the highlighted row
-          in the phone to trigger the moment. The pick list walks the store zone by zone, like a
-          real pick path.
+          <code className="font-mono text-accent">{useSeedLabel()}</code>). In the phone, report each
+          item the way a real picker would: <strong className="text-ink">✓ Found it</strong> packs the
+          line; <strong className="text-ink">✗ Can't find it</strong> hands it to the engine. The
+          pick list walks the store zone by zone, like a real pick path.
         </div>
 
         <div className="mt-3 rounded-2xl border border-line bg-surface p-4 text-xs leading-relaxed text-muted shadow-card">
-          <strong className="text-ink">Out of scope.</strong> The demo treats the shelf state as
-          ground truth — a tap models the picker standing at that slot. Inventory mismatch (phantom
-          stock, items hidden behind other stock) is a different problem, handled by separate
-          cycle-count workflows, and is deliberately not modeled here.
+          <strong className="text-ink">Phantom stock, modeled.</strong> The handheld never sees the
+          shelf truth — you do, standing at the slot. When an item the system calls in-stock can't
+          be found, it is flagged as a <em>phantom stock</em> event (cycle-count territory) and the
+          substitution engine takes over immediately — no wandering the aisle, no silent refund.
         </div>
       </aside>
 
@@ -235,7 +244,9 @@ export function PickerView() {
                     lines={lines}
                     statuses={statuses}
                     progress={pickedCount / Math.max(1, lines.length)}
-                    onTap={tapLine}
+                    shelf={sim.shelf}
+                    onFound={pickLine}
+                    onMissing={reportMissing}
                   />
                 </motion.div>
               )}
@@ -371,15 +382,21 @@ function PickList({
   lines,
   statuses,
   progress,
-  onTap,
+  shelf,
+  onFound,
+  onMissing,
 }: {
   order: Order
   lines: { line: OrderLine; product: Product }[]
   statuses: Record<number, LineStatus>
   progress: number
-  onTap: (idx: number) => void
+  shelf: ShelfState
+  onFound: (idx: number) => void
+  onMissing: (idx: number) => void
 }) {
   const currentIdx = lines.findIndex((_, i) => (statuses[i] ?? "pending") === "pending")
+  const current = currentIdx >= 0 ? lines[currentIdx] : undefined
+  const currentEmpty = current ? shelf.outOfStock.has(current.product.id) : false
   return (
     <div className="px-4 py-4">
       <div className="flex items-center justify-between">
@@ -409,11 +426,10 @@ function PickList({
           const status = statuses[i] ?? "pending"
           const isCurrent = i === currentIdx && status === "pending"
           return (
-            <motion.button
+            <motion.div
               key={entry.line.productId + i}
               data-current={isCurrent ? "true" : undefined}
-              onClick={() => onTap(i)}
-              whileTap={isCurrent ? { scale: 0.98 } : undefined}
+              data-testid={isCurrent ? "current-line" : undefined}
               className={
                 "flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors " +
                 (status === "pending"
@@ -434,11 +450,44 @@ function PickList({
               </span>
               <span className="font-mono text-[13px] font-bold">×{entry.line.qty}</span>
               <StatusIcon status={status} />
-            </motion.button>
+            </motion.div>
           )
         })}
       </div>
-      <p className="mt-3 text-center text-[11px] text-muted">Tap the highlighted item to pick it</p>
+
+      {current && (
+        <div className="mt-3 rounded-2xl border border-line bg-surface p-3 shadow-card">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted">
+              At slot {current.product.zone} · you see
+            </span>
+            <span
+              data-testid="slot-view"
+              className={
+                "chip !text-[10px] " +
+                (currentEmpty ? "!border-warn/60 !bg-warn-soft !text-warn" : "!border-accent/50 !bg-accent-soft !text-accent")
+              }
+            >
+              {currentEmpty ? "slot is empty" : "item on the shelf"}
+            </span>
+          </div>
+          <div className="mt-2.5 grid grid-cols-2 gap-2">
+            <button onClick={() => onFound(currentIdx)} className="btn-primary !py-3 text-[13px]">
+              ✓ Found it
+            </button>
+            <button
+              onClick={() => onMissing(currentIdx)}
+              data-testid="cant-find"
+              className="btn-ghost !py-3 text-[13px] !border-bad/50 !text-bad"
+            >
+              ✗ Can't find it
+            </button>
+          </div>
+          <p className="mt-2 text-center text-[11px] text-muted">
+            Report what the shelf shows — the system doesn't always agree.
+          </p>
+        </div>
+      )}
     </div>
   )
 }
@@ -563,22 +612,39 @@ function OosPanel({
 }) {
   const [showWhy, setShowWhy] = useState<string | null>(null)
   const t = moment.target
+  const phantom = moment.phantom
 
   return (
     <div className="flex h-full flex-col overflow-y-auto scroll-thin px-4 py-4">
       {/* target card with stamp */}
-      <div className="relative overflow-hidden rounded-2xl border border-bad/50 bg-bad-soft px-4 py-3">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">Not on shelf · zone {t.zone}</p>
+      <div
+        className={
+          "relative overflow-hidden rounded-2xl border px-4 py-3 " +
+          (phantom ? "border-warn/50 bg-warn-soft" : "border-bad/50 bg-bad-soft")
+        }
+      >
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+          {phantom ? "Inventory mismatch · zone " + t.zone : "Not on shelf · zone " + t.zone}
+        </p>
         <p className="text-[15px] font-extrabold">{t.name}</p>
         <p className="text-[11px] text-muted">{t.brand} · {t.size} · €{t.price.toFixed(2)}</p>
         <motion.span
           initial={{ scale: 2.2, opacity: 0, rotate: -18 }}
           animate={{ scale: 1, opacity: 1, rotate: -8 }}
           transition={{ type: "spring", stiffness: 320, damping: 16 }}
-          className="absolute right-2 top-2 rounded-lg border-2 border-bad px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-bad"
+          className={
+            "absolute right-2 top-2 rounded-lg border-2 px-2 py-0.5 text-[10px] font-black uppercase tracking-widest " +
+            (phantom ? "border-warn text-warn" : "border-bad text-bad")
+          }
         >
-          out of stock
+          {phantom ? "phantom stock" : "out of stock"}
         </motion.span>
+        {phantom && (
+          <p className="mt-1.5 text-[11px] leading-snug text-muted">
+            The system said this was in stock — you can't find it. Flagged for cycle count; the
+            engine lines up safe swaps.
+          </p>
+        )}
       </div>
 
       {/* engine thinking */}

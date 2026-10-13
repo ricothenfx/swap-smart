@@ -32,6 +32,7 @@ dijaga hard rules mutlak, dikonfirmasi manusia, disertai pesan customer jujur mu
 | D7 | UI mobile-first untuk picker (phone frame di desktop) + ops deck desktop | Dua persona, dua panggung demo |
 | D8 | Pesan customer EN/DE/ID | DH = 70+ negara; personalisasi bahasa = fitur nyata |
 | D9 | Halaman Q&A reviewer (tab ke-4); UI produk netral platform — tanpa nama perusahaan di frontend | Plan B: project harus bisa di-apply ke platform q-commerce/dark-store mana pun; target utama tetap tercatat di AGENTS/charter, bukan di UI produk |
+| D10 | Picker melapor per item dari slot: **Found it** / **Can't find it**. Can't-find pada item yang sistem bilang in-stock = *phantom stock event* (flag cycle-count) → langsung masuk alur substitusi yang sama | Sebelumnya inventory mismatch deliberately out-of-scope; sekarang dimodelkan ringan: picker = mata di rak, drift diakui (di-flag), engine tetap satu jalur deterministik. Simulasi KPI/angka tidak berubah — perubahan ini hanya di lapisan interaksi Picker |
 
 ## 5. Asumsi model (terkunci; mengubah = ubah baris ini)
 

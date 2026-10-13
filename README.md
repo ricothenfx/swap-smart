@@ -24,10 +24,12 @@ problem Swap-Smart solves.
 
 ## What you get — three views, one engine
 
-1. **Picker** — the mobile flow inside a device frame: tap an item → `OUT OF STOCK` stamp →
-   the engine ranks safe substitutes with **reason chips** (`40% match`, `€0.20 cheaper`,
-   `Fits vegan basket`) and an acceptance estimate → picker confirms → the customer gets an
-   honest note in EN/DE/ID. Blocked candidates are counted, not hidden.
+1. **Picker** — the mobile flow inside a device frame: the picker reports every item from the
+   slot — **✓ Found it** packs the line, **✗ Can't find it** stamps `OUT OF STOCK` (or
+   `PHANTOM STOCK` when the system still calls it in-stock) → the engine ranks safe substitutes
+   with **reason chips** (`40% match`, `€0.20 cheaper`, `Fits vegan basket`) and an acceptance
+   estimate → picker confirms → the customer gets an honest note in EN/DE/ID. Blocked candidates
+   are counted, not hidden.
 2. **Ops Deck** — the proof: same orders, same shelf, **three policies compete**
    (auto-refund vs naive bot vs Swap-Smart). Impact strip, twin replay of 140 shelf moments,
    a score→acceptance histogram, and a live **substitution explorer** where you can switch the
@@ -91,16 +93,17 @@ in stock · allergen-safe · diet-safe  →  semantic 38 · price 20 · diet 14 
   (OOS rate 8% popularity-weighted, 20% hero-loss cancellation, €2.50 refund handling,
   350 orders/day) are listed in the app's honesty section and adjustable in
   `src/engine/simulate.ts`.
+- Inventory mismatch is modeled lightly and one-directional: the picker reports found / not-found
+  at the slot, and a not-found on a system in-stock item is flagged as a **phantom stock** event
+  (cycle-count territory) before the substitution flow starts. Hidden stock (system says OOS,
+  picker finds it anyway) and full inventory reconciliation stay out of scope.
 - The acceptance model is calibrated to published online-grocery substitution research
   (~50% acceptance for anonymous naive swaps; in-person, explainable swaps do better).
-- The Picker demo treats the shelf state as ground truth: a tap models the picker standing at that
-  slot. Inventory mismatch (phantom stock, hidden items) is deliberately out of scope — that is
-  cycle-count territory, not substitution.
 
 ## Stack
 
 Vite · React 18 · TypeScript strict · Tailwind (design tokens, dual theme) · framer-motion ·
-hand-written SVG charts · Vitest (18 engine tests) · Playwright (6 e2e) ·
+hand-written SVG charts · Vitest (18 engine tests) · Playwright (7 e2e) ·
 optional Vercel serverless function for the AI writer.
 
 ## Run it

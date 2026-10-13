@@ -1,20 +1,28 @@
 import { test, expect } from "@playwright/test"
 
-test("picker golden path: OOS moment → swap → message → summary", async ({ page }) => {
+async function reportCurrentFromSlot(page: import("@playwright/test").Page) {
+  const slotText = (await page.getByTestId("slot-view").textContent()) ?? ""
+  const btn = /empty/i.test(slotText)
+    ? page.getByTestId("cant-find")
+    : page.getByRole("button", { name: /found it/i })
+  await btn.click()
+  await page.waitForTimeout(400)
+}
+
+test("picker golden path: can't-find → OOS moment → swap → message → summary", async ({ page }) => {
   await page.goto("/")
   await expect(page.getByRole("heading", { name: /5-second shelf decision/i })).toBeVisible()
 
   await page.getByRole("button", { name: "Start picking" }).click()
-  await expect(page.locator("button[data-current='true']")).toBeVisible()
+  await expect(page.getByTestId("slot-view")).toBeVisible()
   await page.waitForTimeout(400)
 
-  // Tap the current (highlighted) item until the OOS panel appears —
+  // Report each item from the slot view until the OOS panel appears —
   // deterministic: seed 2026 order 1 contains an out-of-stock Gouda.
   const oosPanel = page.getByTestId("oos-panel")
   for (let i = 0; i < 12; i++) {
     if (await oosPanel.isVisible()) break
-    await page.locator("button[data-current='true']").click()
-    await page.waitForTimeout(400)
+    await reportCurrentFromSlot(page)
   }
   await expect(oosPanel).toBeVisible()
   await expect(page.getByText("OUT OF STOCK", { exact: false }).first()).toBeVisible()
@@ -44,22 +52,45 @@ test("picker golden path: OOS moment → swap → message → summary", async ({
     await page.getByRole("button", { name: /refund/i }).first().click()
   }
 
-  // finish the order by picking the rest (clicks race exit animations — retry loop)
+  // finish the order by reporting the rest (clicks race exit animations — retry loop)
   for (let i = 0; i < 20; i++) {
     if (await page.getByText("Order done").isVisible().catch(() => false)) break
-    const current = page.locator("button[data-current='true']")
-    if (!(await current.isVisible().catch(() => false))) {
+    if (!(await page.getByTestId("slot-view").isVisible().catch(() => false))) {
       await page.waitForTimeout(300)
       continue
     }
-    await current.click({ timeout: 2500 }).catch(() => {})
-    await page.waitForTimeout(350)
+    await reportCurrentFromSlot(page).catch(() => {})
     const refund = page.getByRole("button", { name: /refund/i }).first()
     if (await refund.isVisible().catch(() => false)) {
       await refund.click({ timeout: 2500 }).catch(() => {})
     }
   }
   await expect(page.getByText("Order done")).toBeVisible({ timeout: 5000 })
+})
+
+test("picker phantom stock: can't-find on a system in-stock item flags it and still ranks swaps", async ({ page }) => {
+  await page.goto("/")
+  await page.getByRole("button", { name: "Start picking" }).click()
+  await expect(page.getByTestId("slot-view")).toBeVisible()
+
+  // walk to the first line whose slot visibly holds the item — the system
+  // says in stock, so reporting it missing must flag phantom stock
+  for (let i = 0; i < 10; i++) {
+    const slotText = (await page.getByTestId("slot-view").textContent()) ?? ""
+    if (slotText.includes("on the shelf")) break
+    await page.getByRole("button", { name: /found it/i }).click()
+    await page.waitForTimeout(300)
+  }
+  await expect(page.getByTestId("slot-view")).toContainText("on the shelf")
+  await page.getByTestId("cant-find").click()
+
+  const oosPanel = page.getByTestId("oos-panel")
+  await expect(oosPanel).toBeVisible()
+  await expect(page.getByText("phantom stock", { exact: false }).first()).toBeVisible()
+  await expect(page.getByText(/flagged for cycle count/i)).toBeVisible()
+  await expect(page.getByText("Engine suggestions").or(page.getByText(/no safe substitute/i))).toBeVisible({
+    timeout: 5_000,
+  })
 })
 
 test("ops deck: KPIs, twin replay, explorer", async ({ page }) => {
