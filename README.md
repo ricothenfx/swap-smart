@@ -93,6 +93,9 @@ in stock · allergen-safe · diet-safe  →  semantic 38 · price 20 · diet 14 
   `src/engine/simulate.ts`.
 - The acceptance model is calibrated to published online-grocery substitution research
   (~50% acceptance for anonymous naive swaps; in-person, explainable swaps do better).
+- The Picker demo treats the shelf state as ground truth: a tap models the picker standing at that
+  slot. Inventory mismatch (phantom stock, hidden items) is deliberately out of scope — that is
+  cycle-count territory, not substitution.
 
 ## Stack
 

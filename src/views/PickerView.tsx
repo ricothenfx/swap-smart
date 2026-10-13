@@ -55,7 +55,12 @@ export function PickerView() {
     () =>
       (order?.lines ?? [])
         .map((l) => ({ line: l, product: productById(l.productId) }))
-        .filter((x): x is { line: OrderLine; product: Product } => x.product !== undefined),
+        .filter((x): x is { line: OrderLine; product: Product } => x.product !== undefined)
+        .sort(
+          (a, b) =>
+            a.product.zone.localeCompare(b.product.zone) ||
+            a.product.name.localeCompare(b.product.name),
+        ),
     [order],
   )
 
@@ -187,7 +192,15 @@ export function PickerView() {
           <strong className="text-ink">Everything is live.</strong> The shelf state, the baskets and
           the ranking all come from the same seeded simulation as the Ops Deck (seed{" "}
           <code className="font-mono text-accent">{useSeedLabel()}</code>). Tap the highlighted row
-          in the phone to trigger the moment.
+          in the phone to trigger the moment. The pick list walks the store zone by zone, like a
+          real pick path.
+        </div>
+
+        <div className="mt-3 rounded-2xl border border-line bg-surface p-4 text-xs leading-relaxed text-muted shadow-card">
+          <strong className="text-ink">Out of scope.</strong> The demo treats the shelf state as
+          ground truth — a tap models the picker standing at that slot. Inventory mismatch (phantom
+          stock, items hidden behind other stock) is a different problem, handled by separate
+          cycle-count workflows, and is deliberately not modeled here.
         </div>
       </aside>
 
