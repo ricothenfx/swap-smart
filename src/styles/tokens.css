@@ -47,6 +47,42 @@
   --bad: #c92a3d;
   --bad-soft: #fbe7ea;
 
+  /* product tile palettes — one hue per category */
+  --cat-dairy: #0369a1;
+  --cat-dairy-soft: #e3f1fb;
+  --cat-bakery: #a16207;
+  --cat-bakery-soft: #f8eed7;
+  --cat-produce: #4d7c0f;
+  --cat-produce-soft: #ecf6da;
+  --cat-pantry: #9a3412;
+  --cat-pantry-soft: #f7e8de;
+  --cat-drinks: #0f766e;
+  --cat-drinks-soft: #dcf3f0;
+  --cat-snacks: #a21caf;
+  --cat-snacks-soft: #f6e5f9;
+  --cat-meat: #b91c1c;
+  --cat-meat-soft: #fbe5e5;
+  --cat-frozen: #4338ca;
+  --cat-frozen-soft: #e7e9fc;
+  --cat-household: #475569;
+  --cat-household-soft: #e8edf3;
+  --cat-care: #7c3aed;
+  --cat-care-soft: #f0e9fd;
+  --cat-baby: #be185d;
+  --cat-baby-soft: #fce8f1;
+  --cat-pet: #0e7490;
+  --cat-pet-soft: #e0f3f8;
+
+  /* shelf-row accents — one per subcategory, from a fixed 8-hue ramp */
+  --acc-teal: #0f766e;
+  --acc-sky: #0284c7;
+  --acc-violet: #6d28d9;
+  --acc-fuchsia: #a21caf;
+  --acc-rose: #be123c;
+  --acc-amber: #b45309;
+  --acc-lime: #4d7c0f;
+  --acc-slate: #475569;
+
   --shadow-card: 0 1px 2px rgb(22 33 27 / 0.06), 0 4px 16px rgb(22 33 27 / 0.06);
   --shadow-pop: 0 2px 6px rgb(22 33 27 / 0.1), 0 12px 32px rgb(22 33 27 / 0.14);
 
@@ -101,6 +137,42 @@
 
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 6px 20px rgb(0 0 0 / 0.35);
   --shadow-pop: 0 2px 8px rgb(0 0 0 / 0.5), 0 16px 40px rgb(0 0 0 / 0.45);
+
+  /* product tile palettes — one hue per category */
+  --cat-dairy: #6fc3f7;
+  --cat-dairy-soft: #0e2a3f;
+  --cat-bakery: #e3c25e;
+  --cat-bakery-soft: #332a12;
+  --cat-produce: #a9cf5f;
+  --cat-produce-soft: #1f3312;
+  --cat-pantry: #e5996f;
+  --cat-pantry-soft: #381d10;
+  --cat-drinks: #5ed3c8;
+  --cat-drinks-soft: #0e2f2c;
+  --cat-snacks: #d98ae3;
+  --cat-snacks-soft: #331336;
+  --cat-meat: #f08a8a;
+  --cat-meat-soft: #3a1515;
+  --cat-frozen: #9aa3f5;
+  --cat-frozen-soft: #1e2145;
+  --cat-household: #9fb3cc;
+  --cat-household-soft: #1d2530;
+  --cat-care: #b79df5;
+  --cat-care-soft: #251a40;
+  --cat-baby: #f08bb8;
+  --cat-baby-soft: #3a1226;
+  --cat-pet: #5fc4dd;
+  --cat-pet-soft: #0e2c38;
+
+  /* shelf-row accents — one per subcategory, from a fixed 8-hue ramp */
+  --acc-teal: #2dd4bf;
+  --acc-sky: #38bdf8;
+  --acc-violet: #a78bfa;
+  --acc-fuchsia: #e879f9;
+  --acc-rose: #fb7185;
+  --acc-amber: #fbbf24;
+  --acc-lime: #a3e635;
+  --acc-slate: #94a3b8;
 
   --header-bg: rgba(19, 26, 23, 0.88);
   --overlay-bg: rgba(12, 17, 15, 0.97);

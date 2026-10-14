@@ -7,6 +7,7 @@ import {
   swapMessage,
 } from "../engine"
 import { useApp } from "../state/store"
+import { ProductTile } from "./ProductTile"
 import { ReasonChip } from "./ReasonChip"
 
 /**
@@ -50,9 +51,14 @@ export function GoldenDemo() {
         render: () =>
           hero ? (
             <Card>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">not on shelf · zone {hero.target.zone}</p>
-              <p className="text-lg font-extrabold">{hero.target.name}</p>
-              <p className="text-xs text-muted">{hero.target.brand} · €{hero.target.price.toFixed(2)}</p>
+              <div className="flex items-center gap-3">
+                <ProductTile product={hero.target} size="lg" />
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">not on shelf · zone {hero.target.zone}</p>
+                  <p className="text-lg font-extrabold leading-tight">{hero.target.name}</p>
+                  <p className="text-xs text-muted">{hero.target.brand} · €{hero.target.price.toFixed(2)}</p>
+                </div>
+              </div>
             </Card>
           ) : null,
       },
@@ -64,8 +70,9 @@ export function GoldenDemo() {
         render: () =>
           hero ? (
             <Card>
-              <div className="flex items-center justify-between">
-                <p className="font-extrabold">{hero.cand.product.brand} {hero.cand.product.name}</p>
+              <div className="flex items-center gap-2.5">
+                <ProductTile product={hero.cand.product} size="sm" />
+                <p className="min-w-0 flex-1 truncate font-extrabold">{hero.cand.product.brand} {hero.cand.product.name}</p>
                 <span className="kpi-num text-accent">{hero.cand.score}</span>
               </div>
               <div className="mt-2 flex flex-wrap gap-1.5">

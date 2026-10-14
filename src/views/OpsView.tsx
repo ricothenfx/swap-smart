@@ -12,6 +12,7 @@ import {
   type Simulation,
 } from "../engine"
 import { useApp } from "../state/store"
+import { ProductTile } from "../components/ProductTile"
 import { ReasonChip } from "../components/ReasonChip"
 
 const euro = (n: number) => "€" + Math.round(n).toLocaleString("en-IE")
@@ -528,8 +529,11 @@ function Explorer({ sim }: { sim: Simulation }) {
                     : "border-line bg-surface hover:bg-surface-2")
                 }
               >
-                <span className="truncate font-medium">
-                  {p.brand} {p.name}
+                <span className="flex min-w-0 items-center gap-2">
+                  <ProductTile product={p} size="xs" />
+                  <span className="truncate font-medium">
+                    {p.brand} {p.name}
+                  </span>
                 </span>
                 <span className="ml-2 shrink-0 font-mono text-[11px] text-muted">€{p.price.toFixed(2)}</span>
               </button>
@@ -555,18 +559,24 @@ function Explorer({ sim }: { sim: Simulation }) {
 
           {target && result && (
             <div className="mt-2.5">
-              <p className="text-[11px] text-muted">
-                <strong className="text-ink">{target.brand} {target.name}</strong> missing · zone {target.zone} ·{" "}
-                {target.allergens.length > 0 ? "allergens: " + target.allergens.join(", ") : "no allergens"}
-              </p>
+              <div className="flex items-center gap-2">
+                <ProductTile product={target} size="sm" />
+                <p className="min-w-0 truncate text-[11px] text-muted">
+                  <strong className="text-ink">{target.brand} {target.name}</strong> missing · zone {target.zone} ·{" "}
+                  {target.allergens.length > 0 ? "allergens: " + target.allergens.join(", ") : "no allergens"}
+                </p>
+              </div>
 
               <div className="mt-2 space-y-1.5">
                 {result.candidates.slice(0, 3).map((c, i) => (
                   <div key={c.product.id} className="rounded-xl border border-line bg-surface p-2.5">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="truncate text-[12.5px] font-bold">
-                        <span className="mr-1.5 font-mono text-[10px] text-muted">#{i + 1}</span>
-                        {c.product.brand} {c.product.name}
+                      <p className="flex min-w-0 items-center gap-2 truncate text-[12.5px] font-bold">
+                        <span className="font-mono text-[10px] text-muted">#{i + 1}</span>
+                        <ProductTile product={c.product} size="xs" />
+                        <span className="truncate">
+                          {c.product.brand} {c.product.name}
+                        </span>
                       </p>
                       <span className="kpi-num text-[12px] text-accent">{c.score}</span>
                     </div>

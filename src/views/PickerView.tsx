@@ -15,6 +15,7 @@ import {
 import { writeMessage, type WrittenMessage } from "../ai/writer"
 import { useApp } from "../state/store"
 import { PhoneFrame } from "../components/PhoneFrame"
+import { ProductTile } from "../components/ProductTile"
 import { ReasonChip } from "../components/ReasonChip"
 import { Hint, HintIcon } from "../components/Hint"
 
@@ -466,6 +467,7 @@ function PickList({
                   : "border-line bg-surface-2 opacity-55")
               }
             >
+              <ProductTile product={entry.product} size="sm" />
               <span className="chip w-9 justify-center !px-0 font-mono">{entry.product.zone}</span>
               <span className="min-w-0 flex-1">
                 <span className={"block truncate text-[13px] font-semibold " + (status !== "pending" ? "line-through" : "")}>
@@ -601,11 +603,16 @@ function OrderSummary({
             const sub = swaps[x.line.productId]
             return (
               <div key={x.line.productId} className="card px-3 py-2 text-[11px] leading-snug">
-                <span className="text-muted">{x.product.brand} {x.product.name} →</span>{" "}
-                <span className="font-semibold text-accent">
-                  {sub ? `${sub.product.brand} ${sub.product.name}` : "substituted"}
-                </span>
-                {sub && <span className="ml-1 text-muted">({sub.score})</span>}
+                <div className="flex items-center gap-2">
+                  <ProductTile product={x.product} size="xs" />
+                  <span className="min-w-0 truncate">
+                    <span className="text-muted">{x.product.brand} {x.product.name} →</span>{" "}
+                    <span className="font-semibold text-accent">
+                      {sub ? `${sub.product.brand} ${sub.product.name}` : "substituted"}
+                    </span>
+                    {sub && <span className="ml-1 text-muted">({sub.score})</span>}
+                  </span>
+                </div>
               </div>
             )
           })}
@@ -650,11 +657,16 @@ function OosPanel({
           (phantom ? "border-warn/50 bg-warn-soft" : "border-bad/50 bg-bad-soft")
         }
       >
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
-          {phantom ? "Inventory mismatch · zone " + t.zone : "Not on shelf · zone " + t.zone}
-        </p>
-        <p className="text-[15px] font-extrabold">{t.name}</p>
-        <p className="text-[11px] text-muted">{t.brand} · {t.size} · €{t.price.toFixed(2)}</p>
+        <div className="flex items-center gap-3">
+          <ProductTile product={t} size="lg" />
+          <div className="min-w-0 pr-16">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+              {phantom ? "Inventory mismatch · zone " + t.zone : "Not on shelf · zone " + t.zone}
+            </p>
+            <p className="text-[15px] font-extrabold leading-tight">{t.name}</p>
+            <p className="text-[11px] text-muted">{t.brand} · {t.size} · €{t.price.toFixed(2)}</p>
+          </div>
+        </div>
         <motion.span
           initial={{ scale: 2.2, opacity: 0, rotate: -18 }}
           animate={{ scale: 1, opacity: 1, rotate: -8 }}
@@ -798,6 +810,7 @@ function CandidateCard({
         <Hint tip="Composite match score 0–100: name similarity + price proximity + diet fit + popularity + same shelf row + rating. Hard rules already guaranteed everything here is safe — open Why? for the context.">
           <ScoreRing score={cand.score} rank={rank} />
         </Hint>
+        <ProductTile product={p} size="sm" />
         <div className="min-w-0 flex-1">
           <p className="truncate text-[13px] font-extrabold">{p.name}</p>
           <p className="text-[11px] text-muted">
