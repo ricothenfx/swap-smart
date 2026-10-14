@@ -16,6 +16,7 @@ import { writeMessage, type WrittenMessage } from "../ai/writer"
 import { useApp } from "../state/store"
 import { PhoneFrame } from "../components/PhoneFrame"
 import { ReasonChip } from "../components/ReasonChip"
+import { Hint, HintIcon } from "../components/Hint"
 
 const STORE = { name: "FrischDepot Kreuzberg", zone: "Berlin · fictional demo store" }
 
@@ -190,11 +191,30 @@ export function PickerView() {
         </ul>
 
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Stat label="Orders picked" value={String(orderIdx + (phase === "summary" ? 1 : 0)) + " / " + orders.length} />
-          <Stat label="Smart swaps" value={String(stats.subs)} />
-          <Stat label="Basket kept" value={"€" + stats.retainedEur.toFixed(2)} />
-          <Stat label="Phantom flags" value={String(stats.phantoms)} />
+          <Stat
+            label="Orders picked"
+            value={String(orderIdx + (phase === "summary" ? 1 : 0)) + " / " + orders.length}
+            hint="Orders finished this shift. The demo shift runs 8 seeded orders — restart the page to reset."
+          />
+          <Stat
+            label="Smart swaps"
+            value={String(stats.subs)}
+            hint="Lines kept with a confirmed substitute instead of a refund — each one is basket value saved."
+          />
+          <Stat
+            label="Basket kept"
+            value={"€" + stats.retainedEur.toFixed(2)}
+            hint="€ value kept in customers' baskets through swaps. Under today's auto-refund flow this money walks out with the refund email."
+          />
+          <Stat
+            label="Phantom flags"
+            value={String(stats.phantoms)}
+            hint="Items the system called in-stock but the shelf was empty. Each flag is a cycle-count event — the store learns where its inventory lies."
+          />
         </div>
+        <p className="mt-2 text-[11px] text-muted">
+          Hover any number or chip to see what it means.
+        </p>
 
         <div className="mt-8 rounded-2xl border border-line bg-surface p-4 text-xs leading-relaxed text-muted shadow-card">
           <strong className="text-ink">Everything is live.</strong> The shelf state, the baskets and
@@ -312,10 +332,17 @@ const fade = {
   transition: { duration: 0.22 },
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div className="card px-3 py-3">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">{label}</p>
+      <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted">
+        {label}
+        {hint && (
+          <Hint tip={hint}>
+            <HintIcon />
+          </Hint>
+        )}
+      </p>
       <p className="kpi-num mt-1 text-xl">{value}</p>
     </div>
   )
@@ -705,7 +732,12 @@ function OosPanel({
         ) : moment.candidates.length > 0 ? (
           <motion.div key="cands" {...fade} className="mt-3 space-y-2">
             <p className="text-[11px] font-bold uppercase tracking-wider text-muted">
-              Engine suggestions · {moment.blocked.length} blocked by hard rules
+              Engine suggestions ·{" "}
+              <Hint tip="Alternatives rejected before any scoring: out of stock, allergen or diet conflicts, more than +25% pricier, or a different category. The engine refuses what it cannot defend.">
+                <span className="underline decoration-dotted underline-offset-2">
+                  {moment.blocked.length} blocked by hard rules
+                </span>
+              </Hint>
             </p>
             {moment.candidates.slice(0, 3).map((c, i) => (
               <CandidateCard
@@ -763,18 +795,22 @@ function CandidateCard({
       }
     >
       <div className="flex items-center gap-2.5">
-        <ScoreRing score={cand.score} rank={rank} />
+        <Hint tip="Composite match score 0–100: name similarity + price proximity + diet fit + popularity + same shelf row + rating. Hard rules already guaranteed everything here is safe — open Why? for the context.">
+          <ScoreRing score={cand.score} rank={rank} />
+        </Hint>
         <div className="min-w-0 flex-1">
           <p className="truncate text-[13px] font-extrabold">{p.name}</p>
-          <p className="truncate text-[11px] text-muted">
+          <p className="text-[11px] text-muted">
             {p.brand} · {p.size} ·{" "}
-            <span className={cand.priceDelta <= 0 ? "font-semibold text-accent" : "font-semibold text-warn"}>
-              {cand.priceDelta < -0.005
-                ? `€${Math.abs(cand.priceDelta).toFixed(2)} cheaper`
-                : cand.priceDelta > 0.005
-                  ? `+€${cand.priceDelta.toFixed(2)}`
-                  : "same price"}
-            </span>
+            <Hint tip="Price difference vs the missing item. Green = cheaper or equal; the guardrail never allows more than +25% above.">
+              <span className={cand.priceDelta <= 0 ? "font-semibold text-accent" : "font-semibold text-warn"}>
+                {cand.priceDelta < -0.005
+                  ? `€${Math.abs(cand.priceDelta).toFixed(2)} cheaper`
+                  : cand.priceDelta > 0.005
+                    ? `+€${cand.priceDelta.toFixed(2)}`
+                    : "same price"}
+              </span>
+            </Hint>
           </p>
         </div>
       </div>
@@ -792,9 +828,14 @@ function CandidateCard({
             transition={{ delay: 0.3, duration: 0.5 }}
           />
         </div>
-        <span className="tnum text-[10px] font-bold text-muted">
-          ~{Math.round(cand.pAccept * 100)}% accept
-        </span>
+        <Hint
+          align="end"
+          tip="Estimated probability the customer says yes to this swap — from a transparent formula (score, price uplift, diet fit), not a black box."
+        >
+          <span className="tnum text-[10px] font-bold text-muted">
+            ~{Math.round(cand.pAccept * 100)}% accept
+          </span>
+        </Hint>
       </div>
       <div className="mt-2.5 flex gap-2">
         <button onClick={onChoose} className="btn-primary flex-1 !py-2 text-[13px]">
