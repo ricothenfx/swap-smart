@@ -115,6 +115,27 @@ npm test             # engine determinism + guardrail invariants
 npm run e2e          # golden-path e2e (builds first)
 ```
 
+## Android app
+
+The picker handheld is also a **real, installable Android app** — a Capacitor wrapper around the
+exact same web build: same engine, same numbers, no separate codebase.
+
+- **Scope:** the Picker flow fullscreen (the phone *is* the device frame — no mockup chrome) plus
+  an About screen with the proof KPIs, hard rules and honesty section.
+- **Native touches:** haptic feedback (found / out-of-stock stamp / swap confirmed), status bar
+  themed to the design tokens, splash screen & adaptive icons, safe-area layout, edge-to-edge.
+- **Build:** `npm run cap:sync` (builds web + syncs into `android/`), then `npm run apk`
+  → `android/app/build/outputs/apk/debug/app-debug.apk` (copied to `swap-smart-debug.apk` at the
+  repo root). Needs JDK 21 + Android SDK 36 — build env notes in `AGENTS.md`.
+- **Install on a phone:** transfer the APK and allow install-from-unknown-sources. It is
+  debug-signed — fine for demos and interviews, not for the Play Store.
+- **Download page:** `swap-smart.ricothen.com/apk` — a standalone page (QR code, 3-step install
+  guide, honesty notes) serving the APK straight from the site. The binary lives at
+  `public/swap-smart.apk`; refresh it after a rebuild with `npm run apk:copy`. Header and footer
+  of the main site link to it, and `vercel.json` rewrites `/apk` to the SPA.
+- The web app is untouched: `App.tsx` gates on `Capacitor.isNativePlatform()` and renders the
+  mobile shell (`src/mobile/`) only inside the native wrapper.
+
 ---
 
 *Portfolio engineering for a **Delivery Hero (Berlin)** application — the vendor-operations

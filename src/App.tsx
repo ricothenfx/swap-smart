@@ -1,3 +1,4 @@
+import { Capacitor } from "@capacitor/core"
 import { AppProvider, useApp } from "./state/store"
 import { Header } from "./components/Header"
 import { PickerView } from "./views/PickerView"
@@ -5,6 +6,8 @@ import { OpsView } from "./views/OpsView"
 import { StoryView } from "./views/StoryView"
 import { QaPage } from "./components/QaPage"
 import { GoldenDemo } from "./components/GoldenDemo"
+import { MobileApp } from "./mobile/MobileApp"
+import { ApkPage } from "./views/ApkPage"
 
 function Shell() {
   const { tab, setTab } = useApp()
@@ -33,7 +36,14 @@ function Shell() {
             >
               Q&amp;A
             </button>{" "}
-            answers the questions reviewers ask.
+            answers the questions reviewers ask. Prefer it on your phone?{" "}
+            <a
+              href="/apk"
+              className="underline decoration-line underline-offset-4 hover:text-ink"
+            >
+              Get the Android app
+            </a>
+            .
           </p>
         </div>
       </footer>
@@ -43,9 +53,18 @@ function Shell() {
 }
 
 export default function App() {
+  if (typeof window !== "undefined" && window.location.pathname.startsWith("/apk")) {
+    return <ApkPage />
+  }
   return (
     <AppProvider>
-      <Shell />
+      <NativeGate />
     </AppProvider>
   )
+}
+
+/** On Android/iOS the handheld IS the device — no page chrome, no device frame. */
+function NativeGate() {
+  const isNative = Capacitor.isNativePlatform()
+  return isNative ? <MobileApp /> : <Shell />
 }

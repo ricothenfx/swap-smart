@@ -47,6 +47,18 @@
 - Label angka harus jelas unitnya: "per 1,000 orders" ≠ "per month at 350 orders/day".
   `impactSummary()` = per-bulan; delta per-1k dihitung dari KPI mentah. Jangan dicampur.
 
+### Android (Capacitor)
+- Shell mobile di `src/mobile/` (Picker fullscreen + About); web tidak berubah — gate lewat
+  `Capacitor.isNativePlatform()` di `App.tsx`. Konten handheld bersumber dari
+  `src/views/PickerSession.tsx` + `PickerHandheld.tsx` yang juga dipakai halaman web.
+- Build: `npm run cap:sync` (build web + sync) lalu `npm run apk` → APK tersalin ke
+  `swap-smart-debug.apk` di root. Verifikasi wajib sama (typecheck, test, build, e2e).
+- Toolchain tanpa root: `JAVA_HOME=~/tools/jdk-21*`, `ANDROID_HOME=~/tools/android-sdk`
+  (platform 36). Tidak ada keystore release di repo; APK debug hanya untuk demo.
+- Halaman download `/apk` (`src/views/ApkPage.tsx`) menyajikan `public/swap-smart.apk`;
+  setelah rebuild APK jalankan `npm run apk:copy` agar yang di-download = binary terbaru.
+  QR code di `public/apk-qr.svg` menunjuk ke URL produksi — regenerasi hanya jika domain berubah.
+
 ### Data & kejujuran
 - Data demo synthetic Berlin; tidak ada merek nyata, tidak ada data produksi.
 - Asumsi model (OOS 8%, cancel 20%, refund €2.50, 350 order/hari) tercatat di charter;

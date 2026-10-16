@@ -7,3 +7,6 @@ test-results
 playwright-report
 *.local
 .DS_Store
+
+# local convenience copy of the built APK (served copy lives in public/)
+swap-smart-debug.apk

@@ -53,6 +53,14 @@ export function Header() {
           ▶ Golden Demo
         </button>
 
+        <a
+          href="/apk"
+          className="btn-ghost !px-3 !py-2 text-[13px]"
+          title="Swap-Smart Android app — download the APK"
+        >
+          ⤓ APK
+        </a>
+
         <ThemeButton theme={theme} onClick={toggleTheme} />
       </div>
     </header>
